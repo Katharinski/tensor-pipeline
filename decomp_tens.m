@@ -42,12 +42,12 @@
 
 
 function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg) 
-    [N,~,~,S] = size(tens);
+    [N,~,T,S] = size(tens);
     % to determine percentile, use only upper triangular of each slice
     unique_pairs_IDs = logical(repmat(triu(ones(N),1),[1,1,T]));
-    spfeats = zeros(N,K,S);
-    tfeats = zeros(T,K,S);
-    lambdas = zeros(K,S);
+    spfeats = zeros(N,F,S);
+    tfeats = zeros(T,F,S);
+    lambdas = zeros(F,S);
     err = 0;
     for s=1:S
         loc_tens = squeeze(tens(:,:,:,s));
@@ -82,5 +82,5 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
     end
     spfeats(:,:,s) = Yd.U{1};
     tfeats(:,:,s) = Yd.U{3};
-    lambdas(:,s) = Yd.lambdas;
+    lambdas(:,s) = Yd.lambda;
 end
