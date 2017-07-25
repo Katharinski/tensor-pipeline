@@ -79,8 +79,9 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
                 [Yd,~] = cp_fLMa_hamming(tenstens,F,cp_param);
             end
         end
+        spfeats(:,:,s) = Yd.U{1};
+        tfeats(:,:,s) = Yd.U{3};
+        lambdas(:,s) = Yd.lambda;
     end
-    spfeats(:,:,s) = Yd.U{1};
-    tfeats(:,:,s) = Yd.U{3};
-    lambdas(:,s) = Yd.lambda;
+    
 end

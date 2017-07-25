@@ -19,7 +19,7 @@ function tens = make_tensor(data,w,method)
             case {'corr','abs'}
                 tens(:,:,:,s) = prepdata_fcms(data(:,:,s),w);
                 
-            case 'MI'
+            case 'MI' % normalize variance?
                 tens(:,:,:,s) = MI_kraskov(data(:,:,s),w);
             case 'ph'
                 tens = zeros(N,N,T,S);
