@@ -15,25 +15,25 @@
 
 function [silh_vals,clust_memb_IDs] = cluster_spfeats(spfeats,maxntemplates)
 % 1st part - decompose for all thresholds and numbers of features
-[nK,nThr] = size(spfeats);
-clust_memb_IDs = cell(size(spfeats));
+[nF,nThr] = size(spfeats);
 
-for k_id=1:nK
+for f_id=1:nF
     for thr_id=1:nThr
         % cluster and determine quality of clustering
-        feats = spfeats{k_id,thr_id};
-        if k_id==1 && thr_id==1
-            [N,k,S] = size(feats);
-            silh_vals = zeros(nK,length(k:maxntemplates),nThr);
-        else 
-            k = size(feats,2);
+        feats = spfeats{f_id,thr_id};
+        if f_id==1 && thr_id==1
+            [N,nF,S] = size(feats);
+            nK  = length(nF:maxntemplates); % different numbers of clusters/templates
+            silh_vals = zeros(nF,nK,nThr);
+            clust_memb_IDs = cell(nF,nK,nThr);
         end
-        feats_flat = reshape(feats,[N,k*S]);
-        t_id = k_id-1;
-        for ntemps = k:maxntemplates
-            t_id = t_id+1;
-            [idx,~,~] = kmeans(feats_flat',ntemps,'Distance','correlation','Display','final','Replicates',5);
-            clust_memb_IDs{k_id,thr_id} = idx;
+        F = size(feats,2);
+        feats_flat = reshape(feats,[N,F*S]);
+        k_id = f_id-1;
+        for K = F:maxntemplates
+            k_id = k_id+1;
+            [idx,~,~] = kmeans(feats_flat',K,'Distance','correlation','Display','final','Replicates',5);
+            clust_memb_IDs{f_id,k_id,thr_id} = idx;
             figure;
             [silh,~] = silhouette(feats_flat',idx,'correlation');
             close all
@@ -43,7 +43,7 @@ for k_id=1:nK
             %         ylabel 'Cluster';
             %         tit = sprintf('Mean = %.2f\n',mean(silh));
             %         title(tit);
-            silh_vals(k_id,t_id,thr_id) = mean(silh);
+            silh_vals(f_id,k_id,thr_id) = mean(silh);
         end
     end
 end
