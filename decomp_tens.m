@@ -48,8 +48,9 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
     spfeats = zeros(N,F,S);
     tfeats = zeros(T,F,S);
     lambdas = zeros(F,S);
-    err = 0;
+    err = zeros(S,1);
     for s=1:S
+        fprintf('subject %i of %i\n',s,S)
         loc_tens = squeeze(tens(:,:,:,s));
         if nonneg % -->use nonnegative decomposition (ADD REF)
             % due to numerics in the MI algorithm, some values can be
@@ -66,11 +67,12 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
         tenstens = tensor(loc_tens); % make tensor object for algorithms
         if nonneg
             if thr==0
-                [Yd,~,~,~] = ncp(tenstens,F);
+                [Yd,~,err(s),~] = ncp(tenstens,F);
             else
-                [Yd,~,~,~] = ncp_hamming(tenstens,k);
+                [Yd,~,~,err(s),~] = ncp_hamming(tenstens,F);
             end
         else
+            err(s) = NaN;
             cp_param = cp_fLMa;
             cp_param.init = {'dtld' 'nvec' 'random'};
             if thr==0

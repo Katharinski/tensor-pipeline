@@ -3,17 +3,22 @@
 % Review E, 69(6), 066138., using version 1 described in eq. (8)
 
 % input: data of single subject, TxN
-%        w - window width in seconds
+%        w - window width in frames
 % output: tensor, with MI values
 
-function [tens] = MI_kraskov(data,w)
+function tens = MI_kraskov(data,w)
 % empirical
 [T,N] = size(data);
-tens = zeros(N,N,round((T-w/2)));
-fprintf('Computing data MI...\n')
-for t=1:(T-w/2)
+W = T-w+1;
+tens = zeros(N,N,W);
+fprintf('Computing MI...\n')
+for t=1:W
     % display(t);
-    chunk = data(t:t+(w/2)-1,:);
+    chunk = data(t:t+w-1,:);
+    if any(isnan(chunk(:)))
+        nanrows = isnan(chunk(:,1));
+        chunk = chunk(~nanrows,:);
+    end
     % get the two TCs between which the MI is to be computed
     for n=1:N
         for m=n+1:N

@@ -18,10 +18,10 @@ for surr=[false,true]
         data_surr = zeros(size(data));
         for s=1:S
             % create surrogates that have no long-term FC
-            data_surr(:,:,s) = surrogates_cov(data(:,:,s)',0)';
-            tens = make_tensor(data_surr,w,method);
-            fname = ['features_',method,'_surr'];
+            data_surr(:,:,s) = surrogates_cov(data(:,:,s)',0)';            
         end
+        tens = make_tensor(data_surr,w,method);
+        fname = ['features_',method,'_surr'];
     end
     W = size(tens,3);
     
@@ -35,7 +35,7 @@ for surr=[false,true]
     spfeats = cell(length(F),length(Thrs));
     tfeats = cell(length(F),length(Thrs));
     lambdas = cell(length(F),length(Thrs));
-    err = cell(length(F),length(Thrs)); % not workind yet
+    err = cell(length(F),length(Thrs)); % not tested yet
     % loop over number of features and thresholds
     f_count = 0;
     for f=F
@@ -57,7 +57,10 @@ end
 
 % 4) find best F, threshold, and number of clusters (by comparing silhouette
 % values from real and surrogate data)
-[templates,bestF,bestK,bestThr,corr_feats] = make_templates(['features_',method]);
+real = load(['features_',method]);
+surr = load(['features_',method,'_surr']);
+
+[templates,bestF,bestK,bestThr,corr_feats] = make_templates(real.spfeats,real.clust_memb_IDs,real.silh_vals,surr.silh_vals,real.F,real.maxntemplates,real.Thrs);
 
 %% plot
 real = load(['features_',method],'silh_vals','Thrs');

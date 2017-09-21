@@ -7,31 +7,29 @@
 %           thr: optional; if only looking for the best results for a
 %           certain threshold, give the percentile
 
-function [templates,bestF,bestK,bestThr,corr_feats] = make_templates(fname,thr)
+function [templates,bestF,bestK,bestThr,corr_feats] = make_templates(spfeats,clust_memb_IDs,silh_vals,silh_vals_surr,F,maxntemplates,Thrs,thr)
 % load data
-real = load(fname);
-[N,~,S] = size(real.spfeats{1});
-surr = load([fname,'_surr']);
-if nargin==2
-    real.silh_vals = real.silh_vals(:,:,real.thrs==thr);
-    surr.silh_vals = surr.silh_vals(:,:,surr.thrs==thr);
+N = size(spfeats{1},1);
+if nargin==8
+    silh_vals = silh_vals(:,:,Thrs==thr);
+    silh_vals_surr = silh_vals_surr(:,:,Thrs==thr);
 end
 % find best parameter combination
-silh_vals_diff = real.silh_vals - surr.silh_vals;
+silh_vals_diff = silh_vals - silh_vals_surr;
 [~,n] = max(silh_vals_diff(:));
 [f_id,k_id,thr_id] = ind2sub(size(silh_vals_diff),n);
-bestF = real.F(f_id);
-ntemps = real.F(1):real.maxntemplates;
+bestF = F(f_id);
+ntemps = F(1):maxntemplates;
 bestK = ntemps(k_id);
 if nargin==2
     bestThr = thr;
 else
-    bestThr = real.Thrs(thr_id);
+    bestThr = Thrs(thr_id);
 end
 % load features and cluster memberships corresponding to parameter combi
-feats = real.spfeats{f_id,thr_id};
+feats = spfeats{f_id,thr_id};
 %feats_flat = reshape(feats,[N,bestF*S]);
-memb_IDs = real.clust_memb_IDs{f_id,k_id,thr_id};
+memb_IDs = clust_memb_IDs{f_id,k_id,thr_id};
 % create templates by taking the mean inside each cluster
 templates = zeros(N,bestK);
 for t=1:bestK
