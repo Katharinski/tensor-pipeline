@@ -1,4 +1,9 @@
 % tensor main script that shows all the steps in the workflow
+
+% 2DO: SHOULD BE ABLE TO RECOGNIZE WHETHER NONNEGATIVE (REMOVE NEG VALUES
+% IN PREVIOUS STEP) -- L37
+
+
 clearvars
 % 1) create a tensor from your fMRI data with dimensions time x brain
 % regions/channels x subjects; we use correlation because that's fastest
@@ -6,7 +11,7 @@ clearvars
 data = load_petradata;
 [T,N,S] = size(data);
 w = 60;
-method = 'corr';
+method = 'ph';
 
 % create tensors, decompose them and cluster resulting features for both
 % real and surrogate data
@@ -27,8 +32,7 @@ for surr=[false,true]
     
     % 2) decompose all tensors and store resulting features
     % use different numbers of features and thresholds to compare later
-    tens = tens(:,:,:,1:10);
-    F = 3:5;
+    F = 3:9;
     Thrs = [75,90,99];
     nonneg = 0; % method = correlation --> not non-negative
     % save features, lambdas ("eigenvalues"), and errors

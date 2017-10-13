@@ -1,4 +1,4 @@
-function f_anatplot(templates)
+function f = f_anatplot(templates,RSN_names)
 load DSI_enhanced
 MNI_coord=tal2mni(talairach);
 clear talairach
@@ -24,6 +24,7 @@ for persp=1
     f.PaperPositionMode = 'auto';
     for k=1:K % use three points of view
         subplot(1,K,k)
+        title(RSN_names{k})
         %f = figure;
         %f.Units = 'centimeters';
         %f.PaperPositionMode = 'auto';
@@ -89,4 +90,5 @@ for persp=1
         rotate3d;
     end
 end
+set(gcf,'color','white')
 end

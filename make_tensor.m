@@ -29,8 +29,14 @@ switch method
         end
         
     case 'ph'
-        tens = zeros(N,N,T,S);
-        parfor s=1:S
+        % extract phases
+        if strcmp(method,'ph')
+            data = get_phases(data);
+        end
+        tens = zeros(N,N,T-20,S);
+        %parfor s=1:S
+        for s=1:S
+            fprintf('subject %i of %i\n',s,S)
             tens(:,:,:,s) = phase_diffs_adj(data(:,:,s));
         end
 end
