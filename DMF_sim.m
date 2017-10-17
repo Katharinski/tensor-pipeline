@@ -1,6 +1,8 @@
-% function to perform simulations with the dynamic mean field model as
-% published in Deco&Jirsa (2012) JNeurosci and modified in Ponce-Alvarez et
-% al. (2015) JNeurosci
+% function to perform simulations with the dynamic mean field model 
+% ref: Deco G, Ponce-Alvarez A, Hagmann P, Romani G, Mantini D, Corbetta M (2014) 
+% How local excitation-inhibition ratio impacts the whole brain dynamics. 
+% JNeurosci 34:7886–7898.
+% code by Adrian Ponce, adpated by Katharina Glomb
 
 function [all_TC,meanrates,stdrates] = DMF_sim(T_sim,SC,G,JI)
 
@@ -34,9 +36,10 @@ tmax = T_sim*2000 + 20000; % time for final sim.; fs=0.5Hz; BOLD() cuts off ~20s
 tspan = length(0:dt:tmax);
 
 % since code was written for Hagmann SC, matrix has to be rescaled
-CHag = load('Human_66');
-CHag = CHag.C;
-fac = sum(CHag(:))/sum(SC(:));
+sumHagSC = 15.3014;
+% CHag = load('Hagmann_matrix');
+% sumHagSC = sum(CHag(:));
+fac = sumHagSC/sum(SC(:));
 SC = SC*fac;
 
 % create arrays

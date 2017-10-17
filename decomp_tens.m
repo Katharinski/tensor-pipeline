@@ -52,11 +52,6 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
     for s=1:S
         fprintf('subject %i of %i\n',s,S)
         loc_tens = squeeze(tens(:,:,:,s));
-        if nonneg % -->use nonnegative decomposition (ADD REF)
-            % due to numerics in the MI algorithm, some values can be
-            % negative, but that's in places with very low MI, set to 0
-            loc_tens(loc_tens<0) = 0;
-        end
         if thr~=0
             % determine threshold
             tens_flat = loc_tens(unique_pairs_IDs);
@@ -65,7 +60,10 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
             loc_tens = double(tens(:,:,:,s)>=thr_val);
         end
         tenstens = tensor(loc_tens); % make tensor object for algorithms
-        if nonneg
+        % all errors are relative errors
+        % ncp_hamming and cp_fLMa_hamming also provide "significant
+        % errors", taking into account the expected random overlap
+        if ~any(tenstens(:)<0)
             if thr==0
                 [Yd,~,err(s),~] = ncp(tenstens,F);
             else
@@ -76,9 +74,11 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
             cp_param = cp_fLMa;
             cp_param.init = {'dtld' 'nvec' 'random'};
             if thr==0
-                [Yd,~] = cp_fLMa(tenstens,F,cp_param);
+                [Yd,output] = cp_fLMa(tenstens,F,cp_param);
+                err(s) = 1-output.fitarr(end,2);
             else
-                [Yd,~] = cp_fLMa_hamming(tenstens,F,cp_param);
+                [Yd,output] = cp_fLMa_hamming(tenstens,F,cp_param);
+                err(s) = output.rel_Error;
             end
         end
         spfeats(:,:,s) = Yd.U{1};

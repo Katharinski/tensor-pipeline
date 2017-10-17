@@ -1,17 +1,22 @@
 % tensor main script that shows all the steps in the workflow
-
-% 2DO: SHOULD BE ABLE TO RECOGNIZE WHETHER NONNEGATIVE (REMOVE NEG VALUES
-% IN PREVIOUS STEP) -- L37
-
+% all code written by Katharina Glomb except:
+% simulations: Adrian Ponce
+% surrogates: Rikkert Hindriks
+% decomposition algorithms: Anh-Huy Phan, Jingu Kim
 
 clearvars
-% 1) create a tensor from your fMRI data with dimensions time x brain
-% regions/channels x subjects; we use correlation because that's fastest
-%data = load('ex_data');
-data = load_petradata;
+% 1) create a tensor from your fMRI data, or simulate data using sim_script
+% load(...)
+data = rand(661,66,24); 
 [T,N,S] = size(data);
-w = 60;
+w = 60; % window width in frames
 method = 'ph';
+switch method
+    case {'ph','abs','MI'}
+        nonneg = 1;
+    case 'corr'
+        nonneg = 0;
+end
 
 % create tensors, decompose them and cluster resulting features for both
 % real and surrogate data
@@ -33,8 +38,7 @@ for surr=[false,true]
     % 2) decompose all tensors and store resulting features
     % use different numbers of features and thresholds to compare later
     F = 3:9;
-    Thrs = [75,90,99];
-    nonneg = 0; % method = correlation --> not non-negative
+    Thrs = [0,75,80,90:99];
     % save features, lambdas ("eigenvalues"), and errors
     spfeats = cell(length(F),length(Thrs));
     tfeats = cell(length(F),length(Thrs));
@@ -47,16 +51,16 @@ for surr=[false,true]
         thr_count = 0;
         for thr=Thrs
             thr_count = thr_count+1;
-            [spfeats{f_count,thr_count},tfeats{f_count,thr_count},lambdas{f_count,thr_count},err{f_count,thr_count}] = decomp_tens(tens,f,thr,nonneg);
+            [spfeats{f_count,thr_count},tfeats{f_count,thr_count},lambdas{f_count,thr_count},err{f_count,thr_count}] = decomp_tens(tens,f,thr);
         end
     end
     
     % 3) use K-means clustering to determine best f and thr
-    maxntemplates = 5;
-    [silh_vals,clust_memb_IDs] = cluster_spfeats(spfeats,maxntemplates);
+    maxK = F(end)+1;
+    [silh_vals,clust_memb_IDs] = cluster_spfeats(spfeats,maxK);
     % store the results
     save(fname,'spfeats','tfeats','lambdas','err','F','Thrs',...
-        'maxntemplates','nonneg','silh_vals','clust_memb_IDs')
+        'maxK','nonneg','silh_vals','clust_memb_IDs')
 end
 
 % 4) find best F, threshold, and number of clusters (by comparing silhouette
@@ -73,12 +77,15 @@ surr = load(['features_',method,'_surr'],'silh_vals');
 silh_vals_diff = real.silh_vals-surr.silh_vals;
 imagesc(silh_vals_diff(:,:,real.Thrs==bestThr))
 colormap(esa)
-set(gca,'XTick',1:length(F(1):maxntemplates))
-set(gca,'XTickLabel',F(1):maxntemplates)
+set(gca,'XTick',1:length(F(1):maxK))
+set(gca,'XTickLabel',F(1):maxK)
 xlabel('# clusters')
 set(gca,'YTick',1:length(F))
 set(gca,'YTickLabel',F)
 ylabel('# features')
 h = colorbar;
 ylabel(h,'silh val diff');
+
+% templates for highest silh vals
+f_anatplot(templates)
 

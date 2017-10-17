@@ -46,6 +46,11 @@ for t=1:W
             n_y = sum(dists_y<repmat(nrst_ngbr,L,1));
             psis = psi(n_x+1)+psi(n_y+1);
             I1 = psi(1)-mean(psis)+psi(L);
+            % due to numerics in the MI algorithm, some values can be
+            % negative; occurs in places with very low MI: set to 0
+            if I1<0
+                I1 = 0;
+            end
             tens(n,m,t) = I1;
             tens(m,n,t) = I1;
         end

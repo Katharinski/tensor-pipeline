@@ -14,12 +14,20 @@ function tens = make_tensor(data,w,method)
 [T,N,S] = size(data);
 W = T-w+1; % number of windows/layers in the tensor
 switch method
-    case {'corr','abs'}
+    case 'corr'
         tens = zeros(N,N,W,S);
-        parfor s=1:S
+        for s=1:S
             fprintf('subject %i of %i\n',s,S)
             tens(:,:,:,s) = prepdata_fcms(data(:,:,s),w);
         end
+        
+    case 'abs'
+        tens = zeros(N,N,W,S);
+        for s=1:S
+            fprintf('subject %i of %i\n',s,S)
+            tens(:,:,:,s) = prepdata_fcms(data(:,:,s),w);
+        end
+        tens = abs(tens);
         
     case 'MI'
         tens = zeros(N,N,W,S);
@@ -39,8 +47,5 @@ switch method
             fprintf('subject %i of %i\n',s,S)
             tens(:,:,:,s) = phase_diffs_adj(data(:,:,s));
         end
-end
-if strcmp(method,'abs')
-    tens = abs(tens);
 end
 end

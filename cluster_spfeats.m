@@ -13,7 +13,7 @@
 %                            integers from 1 to ntemplates
 % 
 
-function [silh_vals,clust_memb_IDs] = cluster_spfeats(spfeats,maxntemplates)
+function [silh_vals,clust_memb_IDs] = cluster_spfeats(spfeats,maxK)
 % 1st part - decompose for all thresholds and numbers of features
 [nF,nThr] = size(spfeats);
 
@@ -23,14 +23,14 @@ for f_id=1:nF
         feats = spfeats{f_id,thr_id};
         if f_id==1 && thr_id==1
             [N,nF,S] = size(feats);
-            nK  = length(nF:maxntemplates); % different numbers of clusters/templates
+            nK  = length(nF:maxK); % different numbers of clusters/templates
             silh_vals = zeros(nF,nK,nThr);
             clust_memb_IDs = cell(nF,nK,nThr);
         end
         F = size(feats,2);
         feats_flat = reshape(feats,[N,F*S]);
         k_id = f_id-1;
-        for K = F:maxntemplates
+        for K = F:maxK
             k_id = k_id+1;
             [idx,~,~] = kmeans(feats_flat',K,'Distance','correlation','Display','final','Replicates',5);
             clust_memb_IDs{f_id,k_id,thr_id} = idx;
