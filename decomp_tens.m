@@ -41,7 +41,7 @@
 %                2013
 
 
-function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg) 
+function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr) 
     [N,~,T,S] = size(tens);
     % to determine percentile, use only upper triangular of each slice
     unique_pairs_IDs = logical(repmat(triu(ones(N),1),[1,1,T]));
@@ -64,21 +64,21 @@ function [spfeats,tfeats,lambdas,err] = decomp_tens(tens,F,thr,nonneg)
         % ncp_hamming and cp_fLMa_hamming also provide "significant
         % errors", taking into account the expected random overlap
         if ~any(tenstens(:)<0)
+            [Yd,~,err1,~] = ncp(tenstens,F);
             if thr==0
-                [Yd,~,err(s),~] = ncp(tenstens,F);
+                err(s) = err1;
             else
-                [Yd,~,~,err(s),~] = ncp_hamming(tenstens,F);
+               [err(s),~] = get_error_hamming(Yd,tenstens); 
             end
         else
             err(s) = NaN;
             cp_param = cp_fLMa;
             cp_param.init = {'dtld' 'nvec' 'random'};
-            if thr==0
-                [Yd,output] = cp_fLMa(tenstens,F,cp_param);
+            [Yd,output] = cp_fLMa(tenstens,F,cp_param);
+            if thr==0                
                 err(s) = 1-output.fitarr(end,2);
             else
-                [Yd,output] = cp_fLMa_hamming(tenstens,F,cp_param);
-                err(s) = output.rel_Error;
+                [err(s),~] = get_error_hamming(Yd,tenstens);
             end
         end
         spfeats(:,:,s) = Yd.U{1};
