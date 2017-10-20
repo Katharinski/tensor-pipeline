@@ -30,11 +30,11 @@ s = fft(X); %apply FFT
 if value == 0
     phase_rnd=zeros(N,M);
     phase_rnd(1,1:M)=0;
-    if (odd(N)==1);
+    if (odd(N)==1)
         ph=2*pi.*rand(M,(N-1)/2)-pi;
         phase_rnd(2:N,1:M)=[ph';-flipdim(ph,2)'];
     end
-    if (odd(N)==0);
+    if (odd(N)==0)
         ph(1:M,1:(N-2)/2)=2*pi.*rand(M,(N-2)/2)-pi;
         phase_rnd(2:N,1:M)=[ph';zeros(1,M);-flipdim(ph,2)'];
     end
@@ -51,11 +51,11 @@ if value == 1
     phase_rnd = zeros(N,1);
     %define first phase
     phase_rnd(1) = 0;
-    if (odd(N) == 1);
+    if (odd(N) == 1)
         ph = 2*pi.*rand(1,(N-1)/2) - pi;
         phase_rnd(2:N) = [ph,-flipdim(ph,2)];
     end
-    if (odd(N) == 0);
+    if (odd(N) == 0)
         ph(1:(N-2)/2) = 2*pi.*rand(1,(N-2)/2) - pi;
         phase_rnd(2:N) = [ph,0,-flipdim(ph,2)];
     end
@@ -79,15 +79,15 @@ output = X_rnd;
 % o = odd(n) equals 1 if n is odd, 0 if n is even
     function outp = odd(n)
         
-        for i = 1:round(n/2);
-            if (2*i == n);
+        for i = 1:round(n/2)
+            if (2*i == n)
                 outp = 0;
             else
                 outp = 1;
             end
         end
         
-        if (n == 0);
+        if (n == 0)
             outp = 0;
         end
     end

@@ -21,5 +21,5 @@ function filt_signal = filter_fMRI(data,flp,fhi)
             filt_signal(:,seed,i) = fx;
         end    
     end
-    filt_signal = demean(filt_signal,1);
+    filt_signal = rm_mean_data(filt_signal,1);
 end

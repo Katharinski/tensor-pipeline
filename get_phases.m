@@ -1,4 +1,4 @@
-function ph_data = extract_phases(data)
+function ph_data = get_phases(data)
     ph_data = zeros(size(data));
     [T,N,S] = size(data);
     % filter data between 0.04 and 0.07 Hz
