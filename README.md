@@ -12,8 +12,10 @@ All steps can be seen in main_script.m. Summary with function names:
 optional: simulate data - sim_script, Get_balanced_weights, DMF_sim - as in Deco et al. (2014)
 
 1) build tensors from time series (make_tensor)
-This method is intended for fMRI data with low spatial resolution which allows comparison with node and edge-style models. Tensors consist of adjacency matrices - in particular, functional connectivity (FC) matrices. FC is computed using 1) Pearson correlation ('corr'), 2) absolute values of Pearson correlation ('abs'), 3) Mutual Information as introduced in Kraskov et al. (2004) ('MI'), 4) phase differences (phase differences between 0 and pi are mapped to adjacency values between 1 and 0, respectively). This latter measure is the only instantaneous one.
+This method is intended for fMRI data with low spatial resolution which allows comparison with node and edge-style models. Tensors consist of adjacency matrices - in particular, functional connectivity (FC) matrices. FC is computed using 1) Pearson correlation ('corr'), 2) absolute values of Pearson correlation ('abs'), 3) Mutual Information as introduced in Kraskov et al. (2004) ('MI'), 4) phase differences (phase differences between 0 and pi are mapped to adjacency values between 1 and 0, respectively). This latter measure is the only instantaneous one and was not used in the reference mentioned above.
+
 surrogates_cov: for creating phase-shuffled (stationary) surrogate time series; decomposition results will be compared to real data
+
 make_tensor: 
   for methods 'abs' and 'corr': calls prepdata_fcms
   for method 'MI': calls MI_kraskov 
@@ -25,9 +27,6 @@ Tensors are composed using different numbers of features (F), and better results
 
 3) cluster resulting features to get templates - cluster_spfeats, make_templates
 In order to evaluate the quality of the decompositions, we K-means-cluster extracted spatial features across subjects and use the silhouette value to quantify how well the features are clustered. This means that our criterion is that the features generalize across subjects. For each value of F, K, and threshold, clustering quality is assessed taking the difference between surrogate and real data. The result is a set of "prototypical" features, or "templates".
-
-4) plot the results - f_anatplot
-Silhuette values and templates will be shown.
 
 optional: match templates from real data with features extracted from simulated/surrogate/single subject data - match_templates
 Vectors are quantized and overlap is computed using confusion matrices and Cohen's kappa (see Glomb et al. 2017 for details).
